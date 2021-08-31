@@ -16,6 +16,11 @@
   ;;; ## aoc-resource-stream
   ;; ----------------------------------------------------
   ;;; return a stream for given YEAR DAY values from resource dir
+  ;;; ```scheme
+  ;;; ; get the resource for 2015 day 1
+  ;;; (let ((fs (aoc-resource-stream 2015 1)))
+  ;;;   ...)
+  ;;; ```
   (define (aoc-resource-stream year day)
     (print "foo"))
 

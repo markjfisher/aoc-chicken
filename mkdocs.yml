@@ -29,12 +29,17 @@ plugins:
   - localsearch
 
 markdown_extensions:
-  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
 
 nav:
   - Main: index.md
+  - User Manual:
+      - Introduction: about.md
+      - Setup: setup.md
   - Common Code:
-      - File Resources: generated/aoc-files.md
+      - Files/Streams: generated/aoc-files.md
   - Advents:
       - 2015:
           - day01: generated/2015/day01.md

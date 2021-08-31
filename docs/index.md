@@ -1,3 +1,5 @@
 # AOC Docs
 
-### TODO: add docs
+### User Manual
+
+[Introduction](about.md)  • [Setup](setup.md)

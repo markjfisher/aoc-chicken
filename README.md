@@ -2,4 +2,4 @@
 
 This is a implementation of AOC challenges in Chicken Scheme.
 
-There will be build instructions.
+See [Setup](docs/setup.md) for compiling and building the application.
