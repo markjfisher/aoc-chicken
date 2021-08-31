@@ -1,0 +1,40 @@
+site_name: aoc-chicken
+
+repo_url: https://github.com/markjfisher/aoc-chicken
+docs_dir: build/gendoc
+site_dir: build/documentation
+
+theme:
+  name: material
+  custom_dir: "resources/material/"
+  font: false
+  palette:
+    primary: deep purple
+    accent: cyan
+  feature:
+    tabs: false
+  include_search_page: false
+  search_index_only: true
+  static-templates:
+    - 404.html
+
+use_directory_urls: false
+
+extra:
+    hljs_languages:
+      - scheme
+
+plugins:
+  - search
+  - localsearch
+
+markdown_extensions:
+  - codehilite
+
+nav:
+  - Main: index.md
+  - Common Code:
+      - File Resources: generated/aoc-files.md
+  - Advents:
+      - 2015:
+          - day01: generated/2015/day01.md
