@@ -22,7 +22,9 @@ endif
 all: advent2015
 
 # advent years
-advent2015: $(ADVENTS_SRC)2015/advent2015.scm aoc2015day01.so aoc-files.so copy-2015-data
+advent2015: $(ADVENTS_SRC)2015/advent2015.scm \
+ aoc2015day01.so aoc2015day02.so\
+ aoc-files.so copy-2015-data
 	$(CSC) $(INCLUDE_FLAGS) $< -d3 -O2 -compile-syntax -o $@
 
 copy-2015-data:
@@ -34,8 +36,16 @@ aoc2015day01.so: $(ADVENTS_SRC)2015/aoc2015day01.scm aoc-files.so
 	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j aoc2015day01 -emit-types-file aoc2015day01.types -o $@
 	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day01.import.scm
 
-aoc2015day01.import.so: day01-2015.so
+aoc2015day01.import.so: aoc2015day01.so
 	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day01.import.scm
+
+# individual days - TODO make this loop
+aoc2015day02.so: $(ADVENTS_SRC)2015/aoc2015day02.scm aoc-files.so
+	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j aoc2015day02 -emit-types-file aoc2015day02.types -o $@
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day02.import.scm
+
+aoc2015day02.import.so: aoc2015day02.so
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day02.import.scm
 
 # Shared code modules
 aoc-files.so: $(ADVENTS_SRC)aoc-files.scm $(DO_TAGS)
@@ -55,7 +65,8 @@ gendoc/generated/2015/%.md: $(ADVENTS_SRC)2015/%.scm
 
 docs: gendoc-dirs \
  gendoc/generated/aoc-files.md \
- gendoc/generated/2015/aoc2015day01.md
+ gendoc/generated/2015/aoc2015day01.md \
+ gendoc/generated/2015/aoc2015day02.md
 	for file in ../docs/*.md; do cp $$file gendoc/; done
 	cp -r ../docs/assets/ gendoc/
 	cd .. && mkdocs build
@@ -65,9 +76,11 @@ gendoc-dirs:
 	mkdir -p gendoc/generated/2015
 
 TAGS: $(ADVENTS_SRC)aoc-files.scm\
- $(ADVENTS_SRC)/2015/aoc2015day01.scm
+ $(ADVENTS_SRC)/2015/aoc2015day01.scm \
+ $(ADVENTS_SRC)/2015/aoc2015day02.scm
 	cd .. && etags -r '"  (def.*? "' aoc-files.scm\
- advents/2015/aoc2015day01.scm
+ advents/2015/aoc2015day01.scm \
+ advents/2015/aoc2015day02.scm
 
 #.PHONY: resources
 #resources:
@@ -85,12 +98,14 @@ tests: advent-tests-2015
 advent-tests-2015:
 	cp -t ./ \
  $(ADVENTS_SRC)/2015/tests/test-day01.scm \
- $(ADVENTS_SRC)/2015/resources/day01.txt \
+ $(ADVENTS_SRC)/2015/tests/test-day01.scm \
+ $(ADVENTS_SRC)/2015/resources/day1.txt \
+ $(ADVENTS_SRC)/2015/resources/day2.txt \
  && $(CSI) test-day01.scm -e
 	-rm test-*.scm
 
 .PHONY: clean
 clean:
 	-rm *.so *.scm *.types *.txt
-	-rm -rf docs plugins resources documentation gendoc
+	-rm -rf docs plugins resources documentation gendoc 2015
 	-rm advent*

@@ -40,9 +40,9 @@
     (aoc2015day01::part1
      aoc2015day01::part2)
 
-  (import scheme
+  (import scheme format
           (streams utils)
-          srfi-41
+          srfi-1 srfi-41
           aoc-files)
 
   (define (aoc2015day01::part1)
@@ -51,11 +51,22 @@
   (define (aoc2015day01::part2)
     (floor-level-matched (floor-levels (aoc-resource-stream 2015 1)) -1))
 
+  ;; turn into a list and take the last, slowest at 10-16ms
+  (define (floor-level-slowest stream)
+    (last (stream->list (floor-levels stream))))
+
+  ;; drop everything but the last item in the stream, faster but still 11ms instead of 5
+  (define (floor-level-slow stream)
+    (let* ([levels (floor-levels stream)]
+           [c (stream-length levels)]
+           [substream (stream-drop (- c 1) levels)])
+      (stream-car substream)))
+
+  ;; fastest is just doing the fold, ~5ms
   (define (floor-level stream)
     (stream-fold
      (lambda (count element)
        (cond
-        ;; need to check the char value
         [(equal? #\) element) (- count 1)]
         [(equal? #\( element) (+ count 1)]
         [else count]))
