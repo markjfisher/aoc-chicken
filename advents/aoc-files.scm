@@ -8,9 +8,9 @@
 (module aoc-files
     (aoc-resource-stream)
 
-  (import scheme)
-  (import (chicken base))
-  (import srfi-41) ;; streams
+  (import scheme
+          (chicken base) (chicken format)
+          srfi-41 (streams utils))
 
   ;; ----------------------------------------------------
   ;;; ## aoc-resource-stream
@@ -22,6 +22,6 @@
   ;;;   ...)
   ;;; ```
   (define (aoc-resource-stream year day)
-    (print "foo"))
+    (file->stream (sprintf "~a/resources/day~a.txt" year day)))
 
   ) ;; end of aoc-files module

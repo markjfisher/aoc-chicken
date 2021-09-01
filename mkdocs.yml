@@ -42,4 +42,4 @@ nav:
       - Files/Streams: generated/aoc-files.md
   - Advents:
       - 2015:
-          - day01: generated/2015/day01.md
+          - day01: generated/2015/aoc2015day01.md
