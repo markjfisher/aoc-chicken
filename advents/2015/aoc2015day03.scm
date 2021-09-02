@@ -1,6 +1,7 @@
 ;; aoc2015day03.scm
 ;; -*- mode: Scheme; tab-width: 2; -*- ;;
 
+;;; ```
 ;;; --- Day 3: Perfectly Spherical Houses in a Vacuum ---
 ;;;
 ;;; Santa is delivering presents to an infinite two-dimensional grid of houses.
@@ -28,7 +29,18 @@
 ;;; ^v^v^v^v^v delivers a bunch of presents to some very lucky children
 ;;; at only 2 houses.
 ;;;
-
+;;; --- Part Two ---
+;;;
+;;; The next year, to speed up the process, Santa creates a robot
+;;; version of himself, Robo-Santa, to deliver presents with him.
+;;;
+;;; Santa and Robo-Santa start at the same location (delivering two
+;;; presents to the same starting house), then take turns moving based
+;;; on instructions from the elf, who is eggnoggedly reading from the
+;;; same script as the previous year.
+;;;
+;;; This year, how many houses receive at least one present?
+;;; ```
 (module aoc2015day03
     (aoc2015day03::part1
      aoc2015day03::part2)
@@ -40,16 +52,25 @@
           matchable
           aoc-files)
 
+  ;; we need to use the same comparator for both sets.
+  (define my-comparator (make-default-comparator))
+
   ;; the creation of the location stream takes ~7ms. putting into unique set increases to 50ms
   (define (aoc2015day03::part1)
     (let ([location-set (stream-to-location-set (direction-to-location-stream (aoc-resource-stream 2015 3)))])
       (set-size location-set)))
 
+  (define (aoc2015day03::part2)
+    (match-let* ([(santa-dir-stream robot-dir-stream) (stream-unzip even? (aoc-resource-stream 2015 3))]
+                 [santa-loc-set (stream-to-location-set (direction-to-location-stream santa-dir-stream))]
+                 [robot-loc-set (stream-to-location-set (direction-to-location-stream robot-dir-stream))])
+      (set-size (set-union! santa-loc-set robot-loc-set))))
+
   ;; using mutation, (i.e. set-adjoin! instead of set-adjoin) drops time from ~700ms to 54ms !!!
   (define (stream-to-location-set stream)
     (stream-fold
      (lambda (s l) (set-adjoin! s l))
-     (set (make-default-comparator) '(0 0))
+     (set my-comparator '(0 0))
      stream))
 
   (define (loc-west l)
@@ -80,4 +101,17 @@
         [else l]))
      '(0 0)
      stream))
+
+  (define (negate pred?)
+    (lambda (x) (not (pred? x))))
+
+  ;; convert a stream into a list of 2 streams split by pred? on their indexes
+  (define (stream-unzip pred? stream)
+    (list (stream-of (cadr x)
+                     (x in (stream-zip (stream-from 0) stream))
+                     (pred? (car x)))
+          (stream-of (cadr x)
+                     (x in (stream-zip (stream-from 0) stream))
+                     ((negate pred?) (car x)))))
+
   )
