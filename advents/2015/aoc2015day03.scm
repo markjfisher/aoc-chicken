@@ -40,16 +40,15 @@
           matchable
           aoc-files)
 
+  ;; the creation of the location stream takes ~7ms. putting into unique set increases to 50ms
   (define (aoc2015day03::part1)
     (let ([location-set (stream-to-location-set (direction-to-location-stream (aoc-resource-stream 2015 3)))])
       (set-size location-set)))
 
-  (define (aoc2015day03::part2)
-    0)
-
+  ;; using mutation, (i.e. set-adjoin! instead of set-adjoin) drops time from ~700ms to 54ms !!!
   (define (stream-to-location-set stream)
     (stream-fold
-     (lambda (s l) (set-adjoin s l))
+     (lambda (s l) (set-adjoin! s l))
      (set (make-default-comparator) '(0 0))
      stream))
 
