@@ -66,7 +66,8 @@ gendoc/generated/2015/%.md: $(ADVENTS_SRC)2015/%.scm
 docs: gendoc-dirs \
  gendoc/generated/aoc-files.md \
  gendoc/generated/2015/aoc2015day01.md \
- gendoc/generated/2015/aoc2015day02.md
+ gendoc/generated/2015/aoc2015day02.md \
+ gendoc/generated/2015/aoc2015day03.md
 	for file in ../docs/*.md; do cp $$file gendoc/; done
 	cp -r ../docs/assets/ gendoc/
 	cd .. && mkdocs build
@@ -77,10 +78,12 @@ gendoc-dirs:
 
 TAGS: $(ADVENTS_SRC)aoc-files.scm\
  $(ADVENTS_SRC)/2015/aoc2015day01.scm \
- $(ADVENTS_SRC)/2015/aoc2015day02.scm
+ $(ADVENTS_SRC)/2015/aoc2015day02.scm \
+ $(ADVENTS_SRC)/2015/aoc2015day03.scm
 	cd .. && etags -r '"  (def.*? "' aoc-files.scm\
  advents/2015/aoc2015day01.scm \
- advents/2015/aoc2015day02.scm
+ advents/2015/aoc2015day02.scm \
+ advents/2015/aoc2015day03.scm
 
 #.PHONY: resources
 #resources:
@@ -98,9 +101,11 @@ tests: advent-tests-2015
 advent-tests-2015:
 	cp -t ./ \
  $(ADVENTS_SRC)/2015/tests/test-day01.scm \
- $(ADVENTS_SRC)/2015/tests/test-day01.scm \
+ $(ADVENTS_SRC)/2015/tests/test-day02.scm \
+ $(ADVENTS_SRC)/2015/tests/test-day03.scm \
  $(ADVENTS_SRC)/2015/resources/day1.txt \
  $(ADVENTS_SRC)/2015/resources/day2.txt \
+ $(ADVENTS_SRC)/2015/resources/day3.txt \
  && $(CSI) test-day01.scm -e
 	-rm test-*.scm
 
