@@ -6,7 +6,8 @@
 ;; -----------------------------------------
 
 (module aoc-files
-    (aoc-resource-stream)
+    (aoc-resource-stream
+     aoc-resource-stream-lines)
 
   (import scheme
           (chicken base) (chicken format)

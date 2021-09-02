@@ -6,7 +6,7 @@
      aoc2015day02::part2)
 
   (import scheme format
-          (chicken base)
+          (chicken base) (chicken string) (chicken sort)
           (streams utils) (streams derived)
           srfi-1 srfi-13 srfi-41
           matchable
