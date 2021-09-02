@@ -17,35 +17,27 @@ ifdef ETAGS
   DO_TAGS = TAGS
 endif
 
+DAYS := 01 02 03
+
 # Start of targets
 
 all: advent2015
 
-# advent years
 advent2015: $(ADVENTS_SRC)2015/advent2015.scm \
- aoc2015day01.so aoc2015day02.so\
- aoc-files.so copy-2015-data
+ aoc-files.so copy-2015-data \
+ $(foreach D,$(DAYS),aoc2015day$(D).so)
 	$(CSC) $(INCLUDE_FLAGS) $< -d3 -O2 -compile-syntax -o $@
 
 copy-2015-data:
 	mkdir -p 2015
 	cp -r $(ADVENTS_SRC)2015/resources 2015/
 
-# individual days - TODO make this loop
-aoc2015day01.so: $(ADVENTS_SRC)2015/aoc2015day01.scm aoc-files.so
-	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j aoc2015day01 -emit-types-file aoc2015day01.types -o $@
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day01.import.scm
+%.so: $(ADVENTS_SRC)2015/%.scm aoc-files.so
+	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j $* -emit-types-file $*.types -o $@
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $*.import.scm
 
-aoc2015day01.import.so: aoc2015day01.so
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day01.import.scm
-
-# individual days - TODO make this loop
-aoc2015day02.so: $(ADVENTS_SRC)2015/aoc2015day02.scm aoc-files.so
-	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j aoc2015day02 -emit-types-file aoc2015day02.types -o $@
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day02.import.scm
-
-aoc2015day02.import.so: aoc2015day02.so
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc2015day02.import.scm
+%.import.so: %.so
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $*.import.scm
 
 # Shared code modules
 aoc-files.so: $(ADVENTS_SRC)aoc-files.scm $(DO_TAGS)
@@ -65,9 +57,7 @@ gendoc/generated/2015/%.md: $(ADVENTS_SRC)2015/%.scm
 
 docs: gendoc-dirs \
  gendoc/generated/aoc-files.md \
- gendoc/generated/2015/aoc2015day01.md \
- gendoc/generated/2015/aoc2015day02.md \
- gendoc/generated/2015/aoc2015day03.md
+ $(foreach D,$(DAYS),gendoc/generated/2015/aoc2015day$(D).md)
 	for file in ../docs/*.md; do cp $$file gendoc/; done
 	cp -r ../docs/assets/ gendoc/
 	cd .. && mkdocs build
@@ -77,18 +67,9 @@ gendoc-dirs:
 	mkdir -p gendoc/generated/2015
 
 TAGS: $(ADVENTS_SRC)aoc-files.scm\
- $(ADVENTS_SRC)/2015/aoc2015day01.scm \
- $(ADVENTS_SRC)/2015/aoc2015day02.scm \
- $(ADVENTS_SRC)/2015/aoc2015day03.scm
+ $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/aoc2015day$(D).scm)
 	cd .. && etags -r '"  (def.*? "' aoc-files.scm\
- advents/2015/aoc2015day01.scm \
- advents/2015/aoc2015day02.scm \
- advents/2015/aoc2015day03.scm
-
-#.PHONY: resources
-#resources:
-#	mkdir -p resources/
-#	cp -r $(ADVENTS_SRC)resources resources/
+ $(foreach D,$(DAYS),advents/2015/aoc2015day$(D).scm)
 
 .PHONY: tests
 tests: advent-tests-2015
@@ -100,12 +81,8 @@ tests: advent-tests-2015
 .PHONY: advent-tests-2015
 advent-tests-2015:
 	cp -t ./ \
- $(ADVENTS_SRC)/2015/tests/test-day01.scm \
- $(ADVENTS_SRC)/2015/tests/test-day02.scm \
- $(ADVENTS_SRC)/2015/tests/test-day03.scm \
- $(ADVENTS_SRC)/2015/resources/day1.txt \
- $(ADVENTS_SRC)/2015/resources/day2.txt \
- $(ADVENTS_SRC)/2015/resources/day3.txt \
+ $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/tests/test-day$(D).scm) \
+ $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/tests/resources/day$(D).txt) \
  && $(CSI) test-day01.scm -e
 	-rm test-*.scm
 
