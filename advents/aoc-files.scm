@@ -11,6 +11,7 @@
 
   (import scheme
           (chicken base) (chicken format)
+          (streams utils) (streams derived)
           srfi-41 (streams utils))
 
   ;; ----------------------------------------------------

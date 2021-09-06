@@ -17,7 +17,7 @@ ifdef ETAGS
   DO_TAGS = TAGS
 endif
 
-DAYS := 01 02 03
+DAYS := 01 02 03 04
 
 # Start of targets
 
