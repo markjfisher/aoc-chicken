@@ -18,8 +18,8 @@
 
   (define (aoc2015day04::part1)
     ;; (find-hash "00000" 254570)
-    (find-hash "00000" 0)
-    ;; (direct-hashing "00000" 5)
+    ;; (find-hash "00000" 0)
+    (direct-hashing "00000" 5)
     )
 
   (define (aoc2015day04::part2)

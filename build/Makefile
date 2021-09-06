@@ -44,8 +44,8 @@ PSEP := \\
 CPF := copy /y
 CPR := xcopy /y /i /e
 MKDIR := mkdir
-RM := del /y
-RMDIR := rmdir /y
+RM := del /q
+RMDIR := rmdir /s /q
 
 endif
 
@@ -69,8 +69,14 @@ advent2015: $(ADVENTS_SRC)2015$(PSEP)advent2015.scm \
 	$(CSC) $(INCLUDE_FLAGS) $< -d3 -O2 -compile-syntax -o $@
 
 copy-2015-data:
+ifeq ($(POSIXSHELL),)
+# annoyingly i can't get xcopy to do same as cp, i.e. whole directory and its name.
+	@if not exist 2015 $(MKDIR) 2015$(PSEP)resources
+	$(CPR) $(ADVENTS_SRC)2015$(PSEP)resources 2015$(PSEP)resources
+else
 	$(MKDIR) 2015
 	$(CPR) $(ADVENTS_SRC)2015$(PSEP)resources 2015/
+endif
 
 %.so: $(ADVENTS_SRC)2015$(PSEP)%.scm aoc-files.so
 	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j $* -emit-types-file $*.types -o $@
