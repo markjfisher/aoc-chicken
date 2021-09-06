@@ -18,7 +18,7 @@ To build the documentation, include the following dependencies:
 Typically install with:
 
 ``` bash
-sudo apt install python-pip libimlib2 libimlib2-dev libgit2-dev mkdocs
+sudo apt install libimlib2 libimlib2-dev libgit2-dev mkdocs
 ```
 
 
@@ -30,7 +30,7 @@ git clone https://github.com/markjfisher/aoc-chicken
 
 Next,install [Chicken Scheme](https://call-cc.org), version 5.0 or
 newer. Chicken is available through most distro package
-repositories. However, for advanced users we recommend to build it
+repositories. However, for advanced users I recommend building it
 from source and do a user install.
 
 After installing Chicken itself, you need to install the following
@@ -38,6 +38,7 @@ extensions
 
 ```sh
 chicken-install args base64 bitstring git imlib2 list-utils matchable simple-md5 srfi-1 srfi-4 srfi-13 srfi-14 srfi-18 srfi-41 srfi-69 stack test
+chicken-install format srfi-113 srfi-128 matchable gochan simple-md5 miscmacros md5
 ```
 
 To build the documentation, you will need [scm2wiki](https://github.com/utz82/scm2wiki),
