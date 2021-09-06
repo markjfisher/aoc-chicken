@@ -8,9 +8,11 @@ DOCGEN = scm2wiki
 LIBFLAGS = -s -d3
 ifdef RELEASE
   LIBFLAGS += -O3
+  EXE_FLAGS = -O3
+else
+  EXE_FLAGS = -d3 -O2 -compile-syntax
 endif
 IMPORTFLAGS = -s -d0
-
 
 # MULTI-PLATFORM CODE
 ifeq ($(OS),Windows_NT)
@@ -66,7 +68,7 @@ all: advent2015
 advent2015: $(ADVENTS_SRC)2015$(PSEP)advent2015.scm \
  aoc-files.so copy-2015-data \
  $(foreach D,$(DAYS),aoc2015day$(D).so)
-	$(CSC) $(INCLUDE_FLAGS) $< -d3 -O2 -compile-syntax -o $@
+	$(CSC) $(INCLUDE_FLAGS) $< $(EXE_FLAGS) -o $@
 
 copy-2015-data:
 ifeq ($(POSIXSHELL),)
