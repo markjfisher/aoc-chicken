@@ -10,29 +10,69 @@ ifdef RELEASE
   LIBFLAGS += -O3
 endif
 IMPORTFLAGS = -s -d0
-INCLUDE_FLAGS = -I ../
 
-ADVENTS_SRC = ../advents/
+
+# MULTI-PLATFORM CODE
+ifeq ($(OS),Windows_NT)
+
+ifneq ($(strip $(filter %sh,$(basename $(realpath $(SHELL))))),)
+POSIXSHELL := 1
+else
+POSIXSHELL :=
+endif
+
+else
+# not on windows:
+POSIXSHELL := 1
+
+endif
+
+ifneq ($(POSIXSHELL),)
+
+CMDSEP := ;
+PSEP := /
+CPF := cp -f
+CPR := cp -r
+MKDIR := mkdir -p
+RM := rm
+RMDIR := rm -rf
+
+else
+
+CMDSEP := &
+PSEP := \\
+CPF := copy /y
+CPR := xcopy /y /i /e
+MKDIR := mkdir
+RM := del /y
+RMDIR := rmdir /y
+
+endif
+
+INCLUDE_FLAGS = -I ..$(PSEP)
+
+ADVENTS_SRC = ..$(PSEP)advents$(PSEP)
 ifdef ETAGS
   DO_TAGS = TAGS
 endif
 
 DAYS := 01 02 03 04
 
+
 # Start of targets
 
 all: advent2015
 
-advent2015: $(ADVENTS_SRC)2015/advent2015.scm \
+advent2015: $(ADVENTS_SRC)2015$(PSEP)advent2015.scm \
  aoc-files.so copy-2015-data \
  $(foreach D,$(DAYS),aoc2015day$(D).so)
 	$(CSC) $(INCLUDE_FLAGS) $< -d3 -O2 -compile-syntax -o $@
 
 copy-2015-data:
-	mkdir -p 2015
-	cp -r $(ADVENTS_SRC)2015/resources 2015/
+	$(MKDIR) 2015
+	$(CPR) $(ADVENTS_SRC)2015$(PSEP)resources 2015/
 
-%.so: $(ADVENTS_SRC)2015/%.scm aoc-files.so
+%.so: $(ADVENTS_SRC)2015$(PSEP)%.scm aoc-files.so
 	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j $* -emit-types-file $*.types -o $@
 	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $*.import.scm
 
@@ -55,21 +95,21 @@ gendoc/generated/%.md: $(ADVENTS_SRC)%.scm
 gendoc/generated/2015/%.md: $(ADVENTS_SRC)2015/%.scm
 	$(DOCGEN) -a -i $< -o $@ -m
 
+# TODO: make this work with windows
 docs: gendoc-dirs \
- gendoc/generated/aoc-files.md \
- $(foreach D,$(DAYS),gendoc/generated/2015/aoc2015day$(D).md)
+ gendoc$(PSEP)generated$(PSEP)aoc-files.md \
+ $(foreach D,$(DAYS),gendoc$(PSEP)generated$(PSEP)2015$(PSEP)aoc2015day$(D).md)
 	for file in ../docs/*.md; do cp $$file gendoc/; done
-	cp -r ../docs/assets/ gendoc/
+	$(CPR) ..$(PSEP)docs$(PSEP)assets$(PSEP) gendoc$(PSEP)
 	cd .. && mkdocs build
 
 gendoc-dirs:
-	mkdir -p gendoc/
-	mkdir -p gendoc/generated/2015
+	$(MKDIR) gendoc$(PSEP)generated$(PSEP)2015
 
 TAGS: $(ADVENTS_SRC)aoc-files.scm\
- $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/aoc2015day$(D).scm)
+ $(foreach D,$(DAYS),$(ADVENTS_SRC)2015$(PSEP)aoc2015day$(D).scm)
 	cd .. && etags -r '"  (def.*? "' aoc-files.scm\
- $(foreach D,$(DAYS),advents/2015/aoc2015day$(D).scm)
+ $(foreach D,$(DAYS),advents$(PSEP)2015$(PSEP)aoc2015day$(D).scm)
 
 .PHONY: tests
 tests: advent-tests-2015
@@ -80,14 +120,13 @@ tests: advent-tests-2015
 # TODO: make this automatically find all tests and run them
 .PHONY: advent-tests-2015
 advent-tests-2015:
-	cp -t ./ \
- $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/tests/test-day$(D).scm) \
- $(foreach D,$(DAYS),$(ADVENTS_SRC)/2015/tests/resources/day$(D).txt) \
- && $(CSI) test-day01.scm -e
-	-rm test-*.scm
+	$(CPF) $(ADVENTS_SRC)2015$(PSEP)tests$(PSEP)test-day*.scm .
+	$(CPF) $(ADVENTS_SRC)2015$(PSEP)tests$(PSEP)resources$(PSEP)day*.txt .
+	$(CSI) test-day01.scm -e
+	-$(RM) test-*.scm day*.txt
 
+# cleans build dir files
 .PHONY: clean
 clean:
-	-rm *.so *.scm *.types *.txt
-	-rm -rf docs plugins resources documentation gendoc 2015
-	-rm advent*
+	-$(RM) *.so *.scm *.types *.txt advent*
+	-$(RMDIR) docs plugins resources documentation gendoc 2015
