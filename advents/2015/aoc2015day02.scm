@@ -67,13 +67,13 @@
 
   ;;; calculate the surface area of paper needed to wrap all presents
   (define (aoc2015day02::part1)
-    (stream-fold (lambda (s x) (+ s x))
+    (stream-fold +
                  0
                  (lwh-stream-transformer (aoc-resource-stream-lines 2015 2) paper)))
 
   ;;; calculate the length of ribbon required to wrap all presents
   (define (aoc2015day02::part2)
-    (stream-fold (lambda (s x) (+ s x))
+    (stream-fold +
                  0
                  (lwh-stream-transformer (aoc-resource-stream-lines 2015 2) ribbon)))
 

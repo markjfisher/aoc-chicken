@@ -2,6 +2,8 @@
 
 # This makefile is inspired by https://github.com/bintracker/bintracker/blob/master/build/Makefile
 
+DAYS := 01 02 03 04 05
+
 CSC = csc
 CSI = csi
 DOCGEN = scm2wiki
@@ -10,7 +12,7 @@ ifdef RELEASE
   LIBFLAGS += -O3
   EXE_FLAGS = -O3
 else
-  EXE_FLAGS = -d3 -O2 -compile-syntax
+  EXE_FLAGS = -d3 -O -compile-syntax
 endif
 IMPORTFLAGS = -s -d0
 
@@ -58,17 +60,25 @@ ifdef ETAGS
   DO_TAGS = TAGS
 endif
 
-DAYS := 01 02 03 04
+ifdef PROFILING
+  PROFILING_OPTIONS = -profile -accumulate-profile
+  EXE_FLAGS =
+  IMPORTFLAGS = -s -d1
+  LIBFLAGS = -s -d1
+else
+  PROFILING_OPTIONS =
+endif
 
-
+##########################################################
 # Start of targets
+##########################################################
 
 all: advent2015
 
 advent2015: $(ADVENTS_SRC)2015$(PSEP)advent2015.scm \
  aoc-files.so copy-2015-data \
  $(foreach D,$(DAYS),aoc2015day$(D).so)
-	$(CSC) $(INCLUDE_FLAGS) $< $(EXE_FLAGS) -o $@
+	$(CSC) $(INCLUDE_FLAGS) $< $(PROFILING_OPTIONS) $(EXE_FLAGS) -o $@
 
 copy-2015-data:
 ifeq ($(POSIXSHELL),)
@@ -81,19 +91,19 @@ else
 endif
 
 %.so: $(ADVENTS_SRC)2015$(PSEP)%.scm aoc-files.so
-	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j $* -emit-types-file $*.types -o $@
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $*.import.scm
+	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $(PROFILING_OPTIONS) $< -j $* -emit-types-file $*.types -o $@
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) $*.import.scm
 
 %.import.so: %.so
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $*.import.scm
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) $*.import.scm
 
 # Shared code modules
 aoc-files.so: $(ADVENTS_SRC)aoc-files.scm $(DO_TAGS)
-	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $< -j aoc-files -emit-types-file aoc-files.types -o $@
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc-files.import.scm
+	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $(PROFILING_OPTIONS) $< -j aoc-files -emit-types-file aoc-files.types -o $@
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-files.import.scm
 
 aoc-files.import.so: aoc-files.so
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) aoc-files.import.scm
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-files.import.scm
 
 # docs
 gendoc/generated/%.md: $(ADVENTS_SRC)%.scm
@@ -136,5 +146,5 @@ advent-tests-2015:
 # cleans build dir files
 .PHONY: clean
 clean:
-	-$(RM) *.so *.scm *.types *.txt advent*
+	-$(RM) *.so *.scm *.types *.txt advent* PROFILE.*
 	-$(RMDIR) docs plugins resources documentation gendoc 2015
