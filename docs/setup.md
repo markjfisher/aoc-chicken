@@ -37,8 +37,10 @@ After installing Chicken itself, you need to install the following
 extensions
 
 ```sh
-chicken-install args base64 bitstring git imlib2 list-utils matchable srfi-1 srfi-4 srfi-13 srfi-14 srfi-18 srfi-41 srfi-69 stack test
-chicken-install format srfi-113 srfi-128 matchable gochan simple-md5 miscmacros md5 message-digest-utils simple-loops
+chicken-install srfi-1 srfi-4 srfi-13 srfi-14 srfi-18 srfi-41 srfi-66
+chicken-install srfi-113 srfi-128 srfi-144 srfi-146 srfi-179
+chicken-install args base64 bitstring list-utils stack test regex-case list-comprehensions foof-loop
+chicken-install format matchable gochan simple-md5 miscmacros md5 message-digest-utils simple-loops
 ```
 
 To build the documentation, you will need [scm2wiki](https://github.com/utz82/scm2wiki),

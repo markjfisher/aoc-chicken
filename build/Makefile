@@ -2,19 +2,20 @@
 
 # This makefile is inspired by https://github.com/bintracker/bintracker/blob/master/build/Makefile
 
-DAYS := 01 02 03 04 05
+DAYS := 01 02 03 04 05 06
 
 CSC = csc
 CSI = csi
 DOCGEN = scm2wiki
 LIBFLAGS = -s -d3
+IMPORTFLAGS = -s -d0
 ifdef RELEASE
   LIBFLAGS += -O3
   EXE_FLAGS = -O3
+  IMPORTFLAGS += -O3
 else
   EXE_FLAGS = -d3 -O -compile-syntax
 endif
-IMPORTFLAGS = -s -d0
 
 # MULTI-PLATFORM CODE
 ifeq ($(OS),Windows_NT)
@@ -146,5 +147,5 @@ advent-tests-2015:
 # cleans build dir files
 .PHONY: clean
 clean:
-	-$(RM) *.so *.scm *.types *.txt advent* PROFILE.*
+	-$(RM) *.so *.scm *.types *.txt advent* PROFILE.* *.import
 	-$(RMDIR) docs plugins resources documentation gendoc 2015
