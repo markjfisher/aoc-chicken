@@ -47,71 +47,46 @@
 
   (import scheme format
           (chicken base) (chicken string) (chicken sort)
-          (streams utils) (streams derived)
-          srfi-1 srfi-13 srfi-41 srfi-113 srfi-128
+          srfi-1 srfi-13 srfi-113 srfi-128
           matchable
-          aoc-files)
+          aoc-utils)
 
   ;; we need to use the same comparator for both sets.
   (define my-comparator (make-default-comparator))
 
-  ;; the creation of the location stream takes ~7ms. putting into unique set increases to 50ms
   (define (aoc2015day03::part1)
-    (let ([location-set (stream-to-location-set (direction-to-location-stream (aoc-resource-stream 2015 3)))])
-      (set-size location-set)))
+    (set-size (follow-dirs (string->list (first (aoc-lines 2015 3))))))
 
   (define (aoc2015day03::part2)
-    (match-let* ([(santa-dir-stream robot-dir-stream) (stream-unzip even? (aoc-resource-stream 2015 3))]
-                 [santa-loc-set (stream-to-location-set (direction-to-location-stream santa-dir-stream))]
-                 [robot-loc-set (stream-to-location-set (direction-to-location-stream robot-dir-stream))])
-      (set-size (set-union! santa-loc-set robot-loc-set))))
+    (match-let* ([(santa-dirs robot-dirs) (split-list (string->list (first (aoc-lines 2015 3))))]
+                 [santa-houses (follow-dirs santa-dirs)]
+                 [robot-houses (follow-dirs robot-dirs)])
+      (set-size (set-union! santa-houses robot-houses))))
 
-  ;; using mutation, (i.e. set-adjoin! instead of set-adjoin) drops time from ~700ms to 54ms !!!
-  (define (stream-to-location-set stream)
-    (stream-fold
-     (lambda (s l) (set-adjoin! s l))
-     (set my-comparator '(0 0))
-     stream))
+  ;; a map of direction instruction to offset in x,y coordinates
+  (define dir-to-offset-map '((#\< -1 0) (#\> 1 0) (#\^ 0 1) (#\v 0 -1)))
 
-  (define (loc-west l)
-    (match-let ([(x y) l])
-      (list (- x 1) y)))
+  ;; look up the direction "d" in the map, and return the offset values
+  ;; (dir-to-offset #\<) ;; (-1 0)
+  (define (dir-to-offset d)
+    (cdr (assq d dir-to-offset-map)))
 
-  (define (loc-east l)
-    (match-let ([(x y) l])
-      (list (+ x 1) y)))
+  ;; return the set of houses visited by a set of directions starting at 0,0
+  (define (follow-dirs dirs)
+    (let loop ([ds dirs] [houses (set my-comparator '(0 0))] [locx 0] [locy 0])
+      (cond [(null? ds) houses]
+            [else
+             (match-let* ([(xo yo) (dir-to-offset (car ds))]
+                          [newx (+ xo locx)]
+                          [newy (+ yo locy)])
+               (loop (cdr ds) (set-adjoin! houses (list newx newy)) newx newy))])))
 
-  (define (loc-north l)
-    (match-let ([(x y) l])
-      (list x (+ y 1))))
-
-  (define (loc-south l)
-    (match-let ([(x y) l])
-      (list x (- y 1))))
-
-  ;;; convert the incoming stream of character directions (^ < > v)
-  (define (direction-to-location-stream stream)
-    (stream-scan
-     (lambda (l element)
-       (cond
-        [(equal? #\< element) (loc-west l)]
-        [(equal? #\> element) (loc-east l)]
-        [(equal? #\^ element) (loc-north l)]
-        [(equal? #\v element) (loc-south l)]
-        [else l]))
-     '(0 0)
-     stream))
-
-  (define (negate pred?)
-    (lambda (x) (not (pred? x))))
-
-  ;; convert a stream into a list of 2 streams split by pred? on their indexes
-  (define (stream-unzip pred? stream)
-    (list (stream-of (cadr x)
-                     (x in (stream-zip (stream-from 0) stream))
-                     (pred? (car x)))
-          (stream-of (cadr x)
-                     (x in (stream-zip (stream-from 0) stream))
-                     ((negate pred?) (car x)))))
+  ;;; Split a list into 2 equal lists taking every other element.
+  ;;; No boundary tests, will fail if the list isn't an even length.
+  ;;; (split-list '(1 2 3 4)) => ((1 3) (2 4))
+  (define (split-list l)
+    (let loop ([ls l] [a '()] [b '()])
+      (cond [(null? ls) (list (reverse a) (reverse b))]
+            [else (loop (drop ls 2) (cons (car ls) a) (cons (cadr ls) b))])))
 
   )

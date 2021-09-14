@@ -73,7 +73,7 @@
           (streams utils) (chicken base) (chicken fixnum)
           srfi-1 srfi-13 srfi-41 srfi-113 srfi-128 srfi-179
           list-comprehensions matchable regex-case
-          aoc-files)
+          aoc-utils)
 
   (define (aoc2015day06::part1)
     (let ([lights (array-copy (make-array (make-interval '#(1000 1000)) (constantly 0)))])

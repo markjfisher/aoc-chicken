@@ -60,32 +60,32 @@
 
   (import scheme format
           (chicken base) (chicken string) (chicken sort)
-          (streams utils) (streams derived)
-          srfi-1 srfi-13 srfi-41
+          srfi-1 srfi-13
           matchable
-          aoc-files)
+          aoc-utils)
 
   ;;; calculate the surface area of paper needed to wrap all presents
   (define (aoc2015day02::part1)
-    (stream-fold +
-                 0
-                 (lwh-stream-transformer (aoc-resource-stream-lines 2015 2) paper)))
+    (fold +
+          0
+          (lwh-transformer (aoc-lines 2015 2) paper)))
 
   ;;; calculate the length of ribbon required to wrap all presents
   (define (aoc2015day02::part2)
-    (stream-fold +
-                 0
-                 (lwh-stream-transformer (aoc-resource-stream-lines 2015 2) ribbon)))
+    (fold +
+          0
+          (lwh-transformer (aoc-lines 2015 2) ribbon)))
 
-  ;;; from a stream of values like 2x3x4, extract the dimensions as l,w,h and pass them to a transformer
-  ;;; the results of which are turned into a new stream
-  (define (lwh-stream-transformer stream transformer)
-    (stream-map (lambda (lwh)
-                  (if (string-null? lwh)
-                      0
-                      (match-let* ([(l w h) (map string->number (string-split lwh "x"))])
-                        (transformer l w h))))
-                stream))
+  ;;; from a list of values like 2x3x4, extract the dimensions as l,w,h and pass them to a transformer
+  ;;; the results of which are turned into a new list
+  (define (lwh-transformer list transformer)
+    (map (lambda (lwh)
+           (if (string-null? lwh)
+               0
+               (match-let* ([(l w h) (map string->number (string-split lwh "x"))])
+                 (transformer l w h))))
+         list))
+
 
   (define (paper l w h)
     (match-let ([(a b) (take (sort (list l w h) <) 2)])

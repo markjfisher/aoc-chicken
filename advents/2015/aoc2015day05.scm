@@ -65,7 +65,7 @@
           (chicken base) (chicken string)
           srfi-1 srfi-13
           (streams utils) (streams derived)
-          aoc-files
+          aoc-utils
           )
 
   (define banned-p1 (list "ab" "cd" "pq" "xy"))

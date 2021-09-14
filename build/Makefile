@@ -77,7 +77,7 @@ endif
 all: advent2015
 
 advent2015: $(ADVENTS_SRC)2015$(PSEP)advent2015.scm \
- aoc-files.so copy-2015-data \
+ aoc-utils.so copy-2015-data \
  $(foreach D,$(DAYS),aoc2015day$(D).so)
 	$(CSC) $(INCLUDE_FLAGS) $< $(PROFILING_OPTIONS) $(EXE_FLAGS) -o $@
 
@@ -91,7 +91,7 @@ else
 	$(CPR) $(ADVENTS_SRC)2015$(PSEP)resources 2015/
 endif
 
-%.so: $(ADVENTS_SRC)2015$(PSEP)%.scm aoc-files.so
+%.so: $(ADVENTS_SRC)2015$(PSEP)%.scm aoc-utils.so
 	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $(PROFILING_OPTIONS) $< -j $* -emit-types-file $*.types -o $@
 	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) $*.import.scm
 
@@ -99,12 +99,12 @@ endif
 	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) $*.import.scm
 
 # Shared code modules
-aoc-files.so: $(ADVENTS_SRC)aoc-files.scm $(DO_TAGS)
-	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $(PROFILING_OPTIONS) $< -j aoc-files -emit-types-file aoc-files.types -o $@
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-files.import.scm
+aoc-utils.so: $(ADVENTS_SRC)utils.scm $(DO_TAGS)
+	$(CSC) $(INCLUDE_FLAGS) $(LIBFLAGS) $(PROFILING_OPTIONS) $< -j aoc-utils -emit-types-file aoc-utils.types -o $@
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-utils.import.scm
 
-aoc-files.import.so: aoc-files.so
-	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-files.import.scm
+aoc-utils.import.so: aoc-utils.so
+	$(CSC) $(INCLUDE_FLAGS) $(IMPORTFLAGS) $(PROFILING_OPTIONS) aoc-utils.import.scm
 
 # docs
 gendoc/generated/%.md: $(ADVENTS_SRC)%.scm
@@ -116,7 +116,7 @@ gendoc/generated/2015/%.md: $(ADVENTS_SRC)2015/%.scm
 
 # TODO: make this work with windows
 docs: gendoc-dirs \
- gendoc$(PSEP)generated$(PSEP)aoc-files.md \
+ gendoc$(PSEP)generated$(PSEP)aoc-utils.md \
  $(foreach D,$(DAYS),gendoc$(PSEP)generated$(PSEP)2015$(PSEP)aoc2015day$(D).md)
 	for file in ../docs/*.md; do cp $$file gendoc/; done
 	$(CPR) ..$(PSEP)docs$(PSEP)assets$(PSEP) gendoc$(PSEP)
@@ -125,9 +125,9 @@ docs: gendoc-dirs \
 gendoc-dirs:
 	$(MKDIR) gendoc$(PSEP)generated$(PSEP)2015
 
-TAGS: $(ADVENTS_SRC)aoc-files.scm\
+TAGS: $(ADVENTS_SRC)aoc-utils.scm\
  $(foreach D,$(DAYS),$(ADVENTS_SRC)2015$(PSEP)aoc2015day$(D).scm)
-	cd .. && etags -r '"  (def.*? "' aoc-files.scm\
+	cd .. && etags -r '"  (def.*? "' aoc-utils.scm\
  $(foreach D,$(DAYS),advents$(PSEP)2015$(PSEP)aoc2015day$(D).scm)
 
 .PHONY: tests

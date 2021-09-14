@@ -46,7 +46,7 @@
   (import scheme format
           (streams utils)
           srfi-1 srfi-41
-          aoc-files)
+          aoc-utils)
 
   (define (aoc2015day01::part1)
     (floor-level (aoc-resource-stream 2015 1)))

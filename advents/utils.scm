@@ -1,16 +1,13 @@
-;; aoc-files.scm
+;; utils.scm
 ;; -*- mode: Scheme; tab-width: 2; -*- ;;
 
-;; -----------------------------------------
-;;; # AOC File & Stream Handling Module
-;; -----------------------------------------
-
-(module aoc-files
+(module aoc-utils
     (aoc-resource-stream
-     aoc-resource-stream-lines)
+     aoc-resource-stream-lines
+     aoc-lines)
 
   (import scheme
-          (chicken base) (chicken format)
+          (chicken base) (chicken format) (chicken io)
           (streams utils) (streams derived)
           srfi-41 (streams utils))
 
@@ -49,4 +46,12 @@
      (stream (stream))
      strm))
 
-  ) ;; end of aoc-files module
+  (define (aoc-lines year day)
+    (let* ([fh (open-input-file (sprintf "~a/resources/day~a.txt" year day))]
+           [line (read-line fh)]
+           [lines '()])
+      (let loop ([fh fh] [line line] [lines lines])
+        (cond [(eof-object? line) (reverse lines)]
+              [else (loop fh (read-line fh) (cons line lines))]))))
+
+  )
