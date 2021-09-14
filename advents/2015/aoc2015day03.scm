@@ -58,12 +58,9 @@
     (set-size (follow-dirs (string->list (first (aoc-lines 2015 3))))))
 
   (define (aoc2015day03::part2)
-    (match-let* ([(santa-dirs robot-dirs) (split-list (string->list (first (aoc-lines 2015 3))))]
-                 [santa-houses (follow-dirs santa-dirs)]
-                 [robot-houses (follow-dirs robot-dirs)])
-      (set-size (set-union! santa-houses robot-houses))))
+    (set-size (follow-dirs-2 (string->list (first (aoc-lines 2015 3))))))
 
-  ;; a map of direction instruction to offset in x,y coordinates
+  ;; a map of direction instruction to offset in x,y coordinates. use assq to lookup entries.
   (define dir-to-offset-map '((#\< -1 0) (#\> 1 0) (#\^ 0 1) (#\v 0 -1)))
 
   ;; look up the direction "d" in the map, and return the offset values
@@ -81,12 +78,18 @@
                           [newy (+ yo locy)])
                (loop (cdr ds) (set-adjoin! houses (list newx newy)) newx newy))])))
 
-  ;;; Split a list into 2 equal lists taking every other element.
-  ;;; No boundary tests, will fail if the list isn't an even length.
-  ;;; (split-list '(1 2 3 4)) => ((1 3) (2 4))
-  (define (split-list l)
-    (let loop ([ls l] [a '()] [b '()])
-      (cond [(null? ls) (list (reverse a) (reverse b))]
-            [else (loop (drop ls 2) (cons (car ls) a) (cons (cadr ls) b))])))
+  ;; track whose turn it is to move (santa, robot), and move them appropriately.
+  ;; This is faster than splitting directions into 2 lists and creating 2 sets of houses then merging them, as we don't
+  ;; have to split, and the final merge is quite expensive.
+  (define (follow-dirs-2 dirs)
+    (let loop ([ds dirs] [houses (set my-comparator '(0 0))] [sx 0] [sy 0] [rx 0] [ry 0] [turn 0])
+      (cond [(null? ds) houses]
+            [else
+             (match-let* ([(xo yo) (dir-to-offset (car ds))]
+                          [newsx (if (= 0 turn) (+ xo sx) sx)]
+                          [newsy (if (= 0 turn) (+ yo sy) sy)]
+                          [newrx (if (= 1 turn) (+ xo rx) rx)]
+                          [newry (if (= 1 turn) (+ yo ry) ry)])
+               (loop (cdr ds) (set-adjoin! houses (if (= 0 turn) (list newsx newsy) (list newrx newry))) newsx newsy newrx newry (- 1 turn)))])))
 
   )
