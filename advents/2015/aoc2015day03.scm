@@ -90,6 +90,12 @@
                           [newsy (if (= 0 turn) (+ yo sy) sy)]
                           [newrx (if (= 1 turn) (+ xo rx) rx)]
                           [newry (if (= 1 turn) (+ yo ry) ry)])
-               (loop (cdr ds) (set-adjoin! houses (if (= 0 turn) (list newsx newsy) (list newrx newry))) newsx newsy newrx newry (- 1 turn)))])))
+               (loop (cdr ds)
+                     (set-adjoin! houses (if (= 0 turn) (list newsx newsy) (list newrx newry)))
+                     newsx
+                     newsy
+                     newrx
+                     newry
+                     (- 1 turn)))])))
 
   )

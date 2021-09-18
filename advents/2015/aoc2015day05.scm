@@ -64,32 +64,31 @@
   (import scheme format
           (chicken base) (chicken string)
           srfi-1 srfi-13
-          (streams utils) (streams derived)
           aoc-utils
           )
 
   (define banned-p1 (list "ab" "cd" "pq" "xy"))
 
   (define (aoc2015day05::part1)
-    (stream-fold (lambda (accum word)
-                   (if (and (has-at-least-three-vowels? word)
-                            (has-double-letter? word)
-                            (not (contains-banned-sequence? word banned-p1)))
-                       (add1 accum)
-                       accum))
-                 0
-                 (aoc-resource-stream-lines 2015 5)))
+    (fold (lambda (word accum)
+            (if (and (has-at-least-three-vowels? word)
+                     (has-double-letter? word)
+                     (not (contains-banned-sequence? word banned-p1)))
+                (add1 accum)
+                accum))
+          0
+          (aoc-lines 2015 5)))
 
   (define (aoc2015day05::part2)
-    (stream-fold (lambda (accum word)
-                   (if (string-null? word)
-                       accum
-                       (if (and (contains-duplicate-pair? word)
-                                (contains-repeat-char-with-one-between? word))
-                           (add1 accum)
-                           accum)))
-                 0
-                 (aoc-resource-stream-lines 2015 5)))
+    (fold (lambda (word accum)
+            (if (string-null? word)
+                accum
+                (if (and (contains-duplicate-pair? word)
+                         (contains-repeat-char-with-one-between? word))
+                    (add1 accum)
+                    accum)))
+          0
+          (aoc-lines 2015 5)))
 
   ;;; old school little-schemer style functions
   (define (has-at-least-three-vowels? s)

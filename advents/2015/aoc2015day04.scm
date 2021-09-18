@@ -7,72 +7,53 @@
 
   (import scheme format
           (chicken base) (chicken string) (chicken sort)
-          (only (chicken random) pseudo-random-integer)
-          (streams utils) (streams derived)
-          srfi-1 srfi-13 srfi-18 srfi-41 srfi-113 srfi-128
-          matchable gochan simple-md5 miscmacros md5 message-digest-byte-vector simple-loops
+          srfi-1 srfi-4 srfi-13 srfi-18 srfi-113 srfi-128 srfi-151
+          matchable miscmacros message-digest-basic simple-loops md5
           )
 
   (define secret "bgvyzdsv")
-  (define prim (md5-primitive))
 
   (define (aoc2015day04::part1)
-    ;; (find-hash "00000" 254570)
-    ;; (find-hash "00000" 0)
-    (direct-hashing "00000" 5)
-    )
+    (hash-test-byte-loop five-leading-zeros? 0))
 
   (define (aoc2015day04::part2)
-    ;; (find-hash "000000" 1038730)
-    ;; (find-hash "000000" 0)
-    (direct-hashing "000000" 6)
-    )
+    (hash-test-byte-loop six-leading-zeros? 254575)) ;; slightly cheating, but it must be at least as big as answer to part1
 
+  ;; using simple string checks.
   ;; this is SO much faster than the gochan version!
-  (define (direct-hashing match length)
+
+  (define (hash-test-str match length)
     (let ([n 0]
           [prim (md5-primitive)])
       (do-until (substring=? (message-digest-string prim (conc secret n)) match 0 0 length)
                 (set! n (add1 n)))
-      n)
-    )
+      n))
 
-  (define (info . args) (apply print (cons (current-thread) (cons " " args))))
+  ;; Using byte vectors for efficiency
+  (define (five-leading-zeros? u8v)
+    (and (zero? (u8vector-ref u8v 0))
+         (zero? (u8vector-ref u8v 1))
+         (zero? (bitwise-and (u8vector-ref u8v 2) 240))))
 
-  (define (hash-tester match listen-chan reply-chan found-chan)
-    (let ([strlen (string-length match)])
-      (let loop ()
-        (gochan-select
-         ((listen-chan -> num)
-          (if (substring=? (message-digest-string prim (conc secret num)) match 0 0 strlen)
-              (gochan-send found-chan num))
-          (gochan-send reply-chan num)
-          (loop))))))
+  (define (six-leading-zeros? u8v)
+    (and (zero? (u8vector-ref u8v 0))
+         (zero? (u8vector-ref u8v 1))
+         (zero? (u8vector-ref u8v 2))))
 
-  (define (find-hash match start-guess)
-    (let* ([block-size 50000]
-           [worker-chan (gochan block-size)]
-           [result-chan (gochan block-size)]
-           [found-chan (gochan 0)]
-           [result 0])
-      (repeat 8 (go (hash-tester match worker-chan result-chan found-chan)))
+  ;; even quicker by using constant buffer, and testing bytes directly
+  (define (hash-test-byte zero-test start)
+    (let ([n start]
+          [prim (md5-primitive)]
+          [buffer (make-u8vector 16 0)])
+      (do-until (zero-test (message-digest-string! prim (conc secret n) buffer))
+                (set! n (add1 n)))
+      n))
 
-      (let loop ([num start-guess]
-                 [running #t])
-        (if running
-            (begin (repeat* block-size (gochan-send worker-chan (+ num it)))
-                   (let block ([count 0])
-                     (if (and running (< count block-size))
-                         (gochan-select
-                          ([result-chan -> msg]
-                           (block (add1 count)))
-                          ([found-chan -> msg]
-                           (loop msg #f)))
-                         (loop (+ block-size num) running))))
-            (set! result num))
-        (gochan-close worker-chan)
-        (gochan-close result-chan)
-        (thread-sleep! (/ 100 1000)))
-      result))
+  ;; roughly same as using do-until, but using little-schema type looping, has 1 extra zero-test than needed
+  ;; first run was faster than above, but running multiple times averaged same.
+  (define (hash-test-byte-loop zero-test start)
+    (let loop ([n start] [prim (md5-primitive)] [buffer (make-u8vector 16 255)])
+      (cond [(zero-test buffer) (sub1 n)]
+            [else (loop (add1 n) prim (message-digest-string! prim (conc secret n) buffer))])))
 
   )
