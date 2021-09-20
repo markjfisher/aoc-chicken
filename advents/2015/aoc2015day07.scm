@@ -65,39 +65,10 @@
           matchable
           aoc-utils)
 
-  (define wiring1 '((a b :rshift 1) (b c :or d) (c 5) (d :not e) (e 16)))
-  (define wiring2 '((a b) (b 5)))
-  (define wiring3 '((a 1)))
-
-  (define (evaluate-wire symbol wire-table)
-    (match-let loop ([(s . v) (assq symbol wire-table)]
-                     [full '()])
-      (cond
-       [(number? (car v)) (loop (wire-table full))])
-      full))
-
   (define (aoc2015day07::part1)
     0)
 
   (define (aoc2015day07::part2)
     0)
-
-
-  (define (rember* a l)
-    (cond [(null? l)
-           (begin (print "list is null, returning ()")
-                  (quote ()))]
-          [(atom? (car l))
-           (begin (print "(car l) is an atom: " (car l))
-                  (cond [(eq? (car l) a)
-                         (begin (print "... and it's equal to " a ", so recurring with (cdr l): " (cdr l))
-                                (rember* a (cdr l)))]
-                        [else
-                         (begin (print "... not " a ", so cons'ing it to recursion with (cdr l): " (cdr l))
-                                (cons (car l) (rember* a (cdr l))))]))]
-          [else
-           (begin (print "" (car l) " is not an atom, so cons'ing the recursion of [(rember* a (car l))], (car l): "
-                         (car l) " to [(rember* a (cdr l))], (cdr l): " (cdr l))
-                  (cons (rember* a (car l)) (rember* a (cdr l))))]))
 
   )

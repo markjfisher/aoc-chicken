@@ -2,6 +2,7 @@ _backup/
 docs/generated
 documentation
 build/*
+!build/static-build.sh
 !build/Makefile
 resources/icons/*.png.*.png
 *.swp
