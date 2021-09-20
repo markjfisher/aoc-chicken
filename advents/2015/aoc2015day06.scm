@@ -101,7 +101,7 @@
             [s1 (fold + 0 (u8vector->list grid2))])
         (list s0 s1))))
 
-  (define (aoc2015day06::part2)
+  (define (aoc2015day06::part2-test)
     (let ([grid1 (make-u8vector (* 1000 1000) 0)]
           [grid2 (make-u8vector (* 1000 1000) 0)])
       (do-list line (aoc-lines 2015 6)
@@ -111,7 +111,7 @@
                                  (list x y)))))
       ))
 
-  (define (aoc2015day06::part2xx)
+  (define (aoc2015day06::part2)
     0)
 
   ;; ORIGINAL SOLUTIONS - 7s each...
