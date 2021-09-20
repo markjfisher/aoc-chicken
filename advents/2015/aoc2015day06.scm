@@ -71,28 +71,66 @@
 
   (import scheme format
           (streams utils) (chicken base) (chicken fixnum)
-          srfi-1 srfi-13 srfi-41 srfi-113 srfi-128 srfi-179
-          list-comprehensions matchable regex-case
+          srfi-1 srfi-4 srfi-13 srfi-113 srfi-128 srfi-179
+          list-comprehensions matchable regex-case simple-loops
           aoc-utils)
 
+  ;; copying C code that was really fast, directly into a vector list, and both solutions in 1 pass
+  ;; this drops the solution from 7+7 = 14s to 2.1s. Still nowhere near as fast as C 0.06s!!!
   (define (aoc2015day06::part1)
-    (let ([lights (array-copy (make-array (make-interval '#(1000 1000)) (constantly 0)))])
-      (stream-for-each (lambda (line)
-                         (and (not (string-null? line))
-                              (match-let ([(i lx ly ux uy) (convert-line-to-instruction line)])
-                                (array-blit lights i lx ly ux uy))))
-                       (aoc-resource-stream-lines 2015 6))
-      (array-reduce + lights)))
-
-  (define (aoc2015day06::part2x) 0)
+    (let ([grid1 (make-u8vector (* 1000 1000) 0)]
+          [grid2 (make-u8vector (* 1000 1000) 0)])
+      (do-list line (aoc-lines 2015 6)
+               (match-let* ([(i a b c d) (convert-line-to-instruction line)])
+                 (do-for x [a (add1 c)]
+                         (do-for y [b (add1 d)]
+                                 (let* ([p (+ x (* 1000 y))]
+                                        [g2v (u8vector-ref grid2 p)])
+                                   (case i
+                                     [(:on)
+                                      (u8vector-set! grid1 p 1)
+                                      (u8vector-set! grid2 p (add1 g2v))]
+                                     [(:off)
+                                      (u8vector-set! grid1 p 0)
+                                      (if (> g2v 0)
+                                          (u8vector-set! grid2 p (sub1 g2v)))]
+                                     [(:toggle)
+                                      (u8vector-set! grid1 p (- 1 (u8vector-ref grid1 p)))
+                                      (u8vector-set! grid2 p (+ 2 g2v))]))))))
+      (let ([s0 (fold + 0 (u8vector->list grid1))]
+            [s1 (fold + 0 (u8vector->list grid2))])
+        (list s0 s1))))
 
   (define (aoc2015day06::part2)
+    (let ([grid1 (make-u8vector (* 1000 1000) 0)]
+          [grid2 (make-u8vector (* 1000 1000) 0)])
+      (do-list line (aoc-lines 2015 6)
+               (match-let* ([(i a b c d) (convert-line-to-instruction line)])
+                 (do-for x [a (add1 c)]
+                         (do-for y [b (add1 d)]
+                                 (list x y)))))
+      ))
+
+  (define (aoc2015day06::part2xx)
+    0)
+
+  ;; ORIGINAL SOLUTIONS - 7s each...
+  (define (aoc2015day06::part1x)
     (let ([lights (array-copy (make-array (make-interval '#(1000 1000)) (constantly 0)))])
-      (stream-for-each (lambda (line)
-                         (and (not (string-null? line))
-                              (match-let ([(i lx ly ux uy) (convert-line-to-instruction line)])
-                                (array-blit-2 lights i lx ly ux uy))))
-                       (aoc-resource-stream-lines 2015 6))
+      (for-each (lambda (line)
+                  (and (not (string-null? line))
+                       (match-let ([(i lx ly ux uy) (convert-line-to-instruction line)])
+                         (array-blit lights i lx ly ux uy))))
+                (aoc-lines 2015 6))
+      (array-reduce + lights)))
+
+  (define (aoc2015day06::part2x)
+    (let ([lights (array-copy (make-array (make-interval '#(1000 1000)) (constantly 0)))])
+      (for-each (lambda (line)
+                  (and (not (string-null? line))
+                       (match-let ([(i lx ly ux uy) (convert-line-to-instruction line)])
+                         (array-blit-2 lights i lx ly ux uy))))
+                (aoc-lines 2015 6))
       (array-reduce + lights)))
 
 
