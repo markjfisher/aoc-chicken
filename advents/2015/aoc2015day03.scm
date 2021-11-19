@@ -82,20 +82,20 @@
   ;; This is faster than splitting directions into 2 lists and creating 2 sets of houses then merging them, as we don't
   ;; have to split, and the final merge is quite expensive.
   (define (follow-dirs-2 dirs)
-    (let loop ([ds dirs] [houses (set my-comparator '(0 0))] [sx 0] [sy 0] [rx 0] [ry 0] [turn 0])
+    (let loop ([ds dirs] [houses (set my-comparator '(0 0))] [sx 0] [sy 0] [rx 0] [ry 0] [santa-turn #t])
       (cond [(null? ds) houses]
             [else
              (match-let* ([(xo yo) (dir-to-offset (car ds))]
-                          [newsx (if (= 0 turn) (+ xo sx) sx)]
-                          [newsy (if (= 0 turn) (+ yo sy) sy)]
-                          [newrx (if (= 1 turn) (+ xo rx) rx)]
-                          [newry (if (= 1 turn) (+ yo ry) ry)])
+                          [newsx (if santa-turn (+ xo sx) sx)]
+                          [newsy (if santa-turn (+ yo sy) sy)]
+                          [newrx (if (not santa-turn) (+ xo rx) rx)]
+                          [newry (if (not santa-turn) (+ yo ry) ry)])
                (loop (cdr ds)
-                     (set-adjoin! houses (if (= 0 turn) (list newsx newsy) (list newrx newry)))
+                     (set-adjoin! houses (if santa-turn (list newsx newsy) (list newrx newry)))
                      newsx
                      newsy
                      newrx
                      newry
-                     (- 1 turn)))])))
+                     (not santa-turn)))])))
 
   )

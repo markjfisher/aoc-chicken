@@ -7,8 +7,8 @@ DAYS := 01 02 03 04 05 06
 CSC = csc
 CSI = csi
 DOCGEN = scm2wiki
-LIBFLAGS = -s -d3
-IMPORTFLAGS = -s -d0
+LIBFLAGS = -s
+IMPORTFLAGS = -s
 ifdef RELEASE
   LIBFLAGS += -O3
   EXE_FLAGS = -O3

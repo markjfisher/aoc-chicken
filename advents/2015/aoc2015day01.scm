@@ -43,54 +43,37 @@
     (aoc2015day01::part1
      aoc2015day01::part2)
 
-  (import scheme format
-          (streams utils)
-          srfi-1 srfi-41
+  (import scheme (chicken base)
+          srfi-1
           aoc-utils)
 
   (define (aoc2015day01::part1)
-    (floor-level (aoc-resource-stream 2015 1)))
+    (floor-level (string->list (first (aoc-lines 2015 1)))))
 
   (define (aoc2015day01::part2)
-    (floor-level-matched (floor-levels (aoc-resource-stream 2015 1)) -1))
+    (floor-level-matched (floor-levels (string->list (first (aoc-lines 2015 1)))) -1))
 
-  ;; turn into a list and take the last, slowest at 10-16ms
-  (define (floor-level-slowest stream)
-    (last (stream->list (floor-levels stream))))
-
-  ;; drop everything but the last item in the stream, faster but still 11ms instead of 5
-  (define (floor-level-slow stream)
-    (let* ([levels (floor-levels stream)]
-           [c (stream-length levels)]
-           [substream (stream-drop (- c 1) levels)])
-      (stream-car substream)))
-
-  ;; fastest is just doing the fold, ~5ms
-  (define (floor-level stream)
-    (stream-fold
-     (lambda (count element)
+  (define (floor-level moves)
+    (fold
+     (lambda (element count)
        (cond
         [(equal? #\) element) (- count 1)]
         [(equal? #\( element) (+ count 1)]
         [else count]))
      0
-     stream))
+     moves))
 
-  ;;; return a stream of current floor level being visited converted from
-  ;;; the incoming stream of instructions
-  (define (floor-levels stream)
-    (stream-scan
-     (lambda (count element)
-       (cond
-        [(equal? #\) element) (- count 1)]
-        [(equal? #\( element) (+ count 1)]
-        [else count]))
-     0
-     stream))
+  (define (floor-levels moves)
+    (let loop ([moves moves] [levels '(0)] [current-level 0])
+      (cond
+       [(null? moves) (reverse levels)]
+       [(equal? #\) (car moves)) (loop (cdr moves) (cons (sub1 current-level) levels) (sub1 current-level))]
+       [(equal? #\( (car moves)) (loop (cdr moves) (cons (add1 current-level) levels) (add1 current-level))]
+       [else (loop (cdr moves) levels current-level)])))
 
-  ;;; return which element index of stream matches the given floor number.
+  ;;; return which element index of list matches the given floor number.
   ;;; automatically gives 1 based index because the 0th element is floor 0 before
   ;;; any instructions begin.
-  (define (floor-level-matched stream floor)
-    (stream-find eq? floor stream))
+  (define (floor-level-matched levels floor)
+    (list-index (lambda (l) (eq? floor l)) levels))
   )
